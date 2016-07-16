@@ -162,6 +162,12 @@
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Bitmaps\paint_icon.bmp" />
+    <Image Include="..\Bitmaps\paint_icon.bmp.bmp" />
+    <Image Include="..\Bitmaps\paint_icon.png" />
+    <Image Include="bitmap1.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

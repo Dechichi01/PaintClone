@@ -19,6 +19,8 @@ HWND ghMainWnd = 0;
 HINSTANCE ghAppInst = 0;
 HMENU ghMenu = 0;
 
+HWND ghDlg = 0;
+
 vector<Shape*> gShapes;
 Shape* gShape = 0;
 
@@ -36,7 +38,7 @@ LOGBRUSH gLogBrush;
 //==========================//
 
 //Functions ================//
-int HandleMenu(WPARAM wParam);
+int HandleMenu(HWND hWnd, WPARAM wParam);
 //==========================//
 
 //Step1: Define and implement the window procedure
@@ -59,7 +61,7 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		CheckMenuItem(ghMenu, ID_BRUSHSTYLE_SOLID, MF_CHECKED);
 		return 0;
 	case WM_COMMAND://A menu item was checked
-		HandleMenu(wParam);
+		HandleMenu(hWnd, wParam);
 		return 0;
 	case WM_LBUTTONDOWN:
 		//Capture the mouse, so we still have mouse input even if the mouse leaves the client area
@@ -156,6 +158,57 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+//=========MODAL DIALOG EXAMPLE======//
+BOOL CALLBACK
+AboutDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		return true; //We use WM_INITDIALOG to set default values. We don't need to set any for a About BOX
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+			EndDialog(hDlg, 0/*return code*/);
+			return true;
+		}
+	}
+	return false;
+}
+
+//========NON-MODAL DIALOG EXAMPLE======//
+BOOL CALLBACK
+EditDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	char msgText[256];
+
+	static HWND hEditBox = 0;
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		//Controls are CHILD WINDOWS to the dialog they lie on. In order to operate a control we need a HANDLE to it.
+		hEditBox = GetDlgItem(hDlg, IDC_MSGTEXT);
+		//Set some default text
+		SetWindowText(hEditBox, L"Enter a message here.");
+		return true;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDB_MSG:
+			GetWindowText(hEditBox, (LPWSTR) msgText, 256);
+			MessageBox(0, (LPWSTR)msgText, L"MessageText", MB_OK);
+			return true;
+		}
+		return true;
+	case WM_CLOSE:
+		DestroyWindow(hDlg);
+		return true;
+	}
+	return false;
+}
+
 int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmdLine, int showCmd)
 {
@@ -195,6 +248,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmdLine, int showCmd)
 
 	while (GetMessage(&msg, 0, 0, 0)) //GetMessage will be FALSE if the message is a WM_QUIT
 	{
+		if (ghDlg == 0 || !IsDialogMessage(ghDlg, &msg) /*will return true if the message is for a dialog, and fwd the msg to it*/)
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -209,13 +263,18 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmdLine, int showCmd)
 
 }
 
-int HandleMenu(WPARAM wParam)
+int HandleMenu(HWND hWnd, WPARAM wParam)
 {
 	switch (LOWORD(wParam))
 	{
 	case ID_FILE_EXIT:
 		DestroyWindow(ghMainWnd);
 		return 0;
+	case ID_FILE_ABOUT:
+		DialogBox(ghAppInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, AboutDlgProc);
+		return 0;
+	case ID_FILE_EDITDIALOG:
+		ghDlg = CreateDialog(ghAppInst, MAKEINTRESOURCE(IDD_MSGDLG), 0, EditDlgProc);
 		//=============== Primitives ===============
 	case ID_PRIMITIVE_LINE:
 		//Check primitive line and uncheck current select primitive
