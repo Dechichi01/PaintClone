@@ -1,0 +1,4 @@
+﻿  Source.cpp
+c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(244): warning C4018: '<': signed/unsigned mismatch
+c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(305): warning C4018: '<': signed/unsigned mismatch
+  PaintClone.vcxproj -> C:\Users\Gabriel\Desktop\C++ for Game Developers\Ch1\PaintClone\Debug\PaintClone.exe
