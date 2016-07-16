@@ -20,6 +20,8 @@ HINSTANCE ghAppInst = 0;
 HMENU ghMenu = 0;
 
 HWND ghDlg = 0;
+HWND ghRadio = 0;
+HWND ghCombo = 0;
 
 vector<Shape*> gShapes;
 Shape* gShape = 0;
@@ -135,7 +137,9 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x5A:
 			if (gCtrlDown && gShapes.size() != 0)
 			{
+				Shape* shape = gShapes[gShapes.size() - 1];
 				gShapes.pop_back();
+				delete shape;
 				InvalidateRect(hWnd, 0, true);
 			}
 			break;
@@ -208,6 +212,83 @@ EditDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return false;
 }
+//=============RADIO BUTTON EXAMPLE =========//
+BOOL CALLBACK
+RadioDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	static int classSelection = IDC_RADIO_FIGHTER;
+	string classNames[4] = { "You selected the fighter", "You selected the Cleric", "You selected the Thief", "You selected the Wizard" };
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		CheckRadioButton(hDlg, IDC_RADIO_FIGHTER, IDC_RADIO_WIZARD, IDC_RADIO_FIGHTER);
+		return true;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDC_RADIO_FIGHTER:
+		case IDC_RADIO_CLERIC:
+		case IDC_RADIO_THIEF:
+		case IDC_RADIO_WIZARD:
+
+			CheckRadioButton(hDlg, IDC_RADIO_FIGHTER, IDC_RADIO_WIZARD, LOWORD(wParam));
+			classSelection = LOWORD(wParam);
+			return true;
+		case IDOK:
+			MessageBox(0, (LPWSTR) (classNames[classSelection - IDC_RADIO_FIGHTER].c_str()), L"Message", MB_OK);
+			return true;
+		}
+		return true;
+	case WM_CLOSE:
+		DestroyWindow(hDlg);
+		return true;
+	}
+	return false;
+}
+//===========COMBO BOX EXAMPLE=============//
+BOOL CALLBACK
+ComboDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	char msgText[256];
+	//Handles to the combo box controls
+	static HWND hComboBox = 0;
+	static HWND hEditBox = 0;
+	static HWND hAddButton = 0;
+
+	int index = 0;
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		hComboBox = GetDlgItem(hDlg, IDC_COMBOBOX);
+		hEditBox = GetDlgItem(hDlg, IDC_EDIT_MSG);
+		hAddButton = GetDlgItem(hDlg, IDC_ADDBUTTON);
+
+		SetWindowText(hEditBox, L"Type a text to add at the dialog box.");
+	case WM_COMMAND:
+		switch (HIWORD(wParam))
+		{
+		case CBN_SELENDOK://User selected a combo box item
+			index = SendMessage(hComboBox, CB_GETCURSEL, 0, 0);//We send a message to the ComboBox WindowProcedure (windows makes one for you) requesting for the id of the selected item
+			SendMessage(hComboBox, CB_GETLBTEXT, (WPARAM)index, (LPARAM)msgText);//Get the text at the index and put it on msgText
+			MessageBox(0, (LPWSTR)msgText, L"Message", MB_OK);
+			return true;
+		}
+		switch (LOWORD(wParam))
+		{
+		case IDC_ADDBUTTON://User pressed the add button
+			GetWindowText(hEditBox, (LPWSTR)msgText, 256);
+			if (strlen(msgText) > 0)
+				SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)msgText);//Send a message to the combobox requesting to add a string
+			return true;
+		}
+		return true;
+	case WM_CLOSE:
+		DestroyWindow(hDlg);
+		return true;
+	}
+	return false;
+}
 
 int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmdLine, int showCmd)
@@ -248,7 +329,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmdLine, int showCmd)
 
 	while (GetMessage(&msg, 0, 0, 0)) //GetMessage will be FALSE if the message is a WM_QUIT
 	{
-		if (ghDlg == 0 || !IsDialogMessage(ghDlg, &msg) /*will return true if the message is for a dialog, and fwd the msg to it*/)
+		if (ghDlg == 0 || !IsDialogMessage(ghDlg, &msg) && /*will return true if the message is for a dialog, and fwd the msg to it*/
+		    ghRadio == 0 || !IsDialogMessage(ghRadio, &msg) &&
+			ghCombo == 0 || !IsDialogMessage(ghCombo, &msg))
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -275,6 +358,12 @@ int HandleMenu(HWND hWnd, WPARAM wParam)
 		return 0;
 	case ID_FILE_EDITDIALOG:
 		ghDlg = CreateDialog(ghAppInst, MAKEINTRESOURCE(IDD_MSGDLG), 0, EditDlgProc);
+		return 0;
+	case ID_FILE_RADIOBUTTONS:
+		ghRadio = CreateDialog(ghAppInst, MAKEINTRESOURCE(IDD_RADIODLG), 0, RadioDlgProc);
+		return 0;
+	case ID_FILE_COMBOBOX:
+		ghCombo = CreateDialog(ghAppInst, MAKEINTRESOURCE(IDD_COMBODLG), 0, ComboDlgProc);
 		//=============== Primitives ===============
 	case ID_PRIMITIVE_LINE:
 		//Check primitive line and uncheck current select primitive

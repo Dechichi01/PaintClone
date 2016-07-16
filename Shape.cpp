@@ -29,3 +29,18 @@ void Shape::SetEndPt(const POINT & p1)
 {
 	mPt1 = p1;
 }
+
+void Shape::Draw(HDC hdc)
+{
+	return;
+}
+
+void Shape::operator=(Shape & rhs)
+{
+	mPt0 = rhs.mPt0;
+	mPt1 = rhs.mPt1;
+	mhPen = rhs.mhPen;
+	mhBrush = rhs.mhBrush;
+	mhOldPen = 0;
+	mhOldBrush = 0;
+}

@@ -9,7 +9,9 @@ public:
 	void SetStartPt(const POINT& p0);
 	void SetEndPt(const POINT& p1);
 
-	virtual void Draw(HDC hdc) = 0;
+	virtual void Draw(HDC hdc);
+
+	void operator=(Shape& rhs);
 
 protected:
 	POINT mPt0;
