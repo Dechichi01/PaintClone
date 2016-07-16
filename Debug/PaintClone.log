@@ -1,5 +1,5 @@
 ﻿  Source.cpp
 c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(120): warning C4018: '<': signed/unsigned mismatch
-c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(195): warning C4018: '<': signed/unsigned mismatch
-c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(337): warning C4715: 'HandleMenu': not all control paths return a value
+c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(203): warning C4018: '<': signed/unsigned mismatch
+c:\users\gabriel\desktop\c++ for game developers\ch1\paintclone\paintclone\source.cpp(345): warning C4715: 'HandleMenu': not all control paths return a value
   PaintClone.vcxproj -> C:\Users\Gabriel\Desktop\C++ for Game Developers\Ch1\PaintClone\Debug\PaintClone.exe

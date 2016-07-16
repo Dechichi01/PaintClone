@@ -122,22 +122,30 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		EndPaint(hWnd, &ps);
 	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE)
-			DestroyWindow(ghMainWnd);
-		else if (wParam == VK_CONTROL)
-			gCtrlDown = true;
-		else if (wParam == 0x5A && gCtrlDown)
+		switch (wParam)
 		{
-			if (gShapes.size() != 0) 
+		case VK_ESCAPE:
+			DestroyWindow(ghMainWnd);
+			break;
+		case VK_CONTROL:
+			gCtrlDown = true;
+			break;
+		case 0x5A:
+			if (gCtrlDown && gShapes.size() != 0)
 			{
 				gShapes.pop_back();
 				InvalidateRect(hWnd, 0, true);
 			}
+			break;
 		}
 		return 0;
 	case WM_KEYUP:
-		if (wParam == VK_LCONTROL)
+		switch (wParam)
+		{
+		case VK_CONTROL:
 			gCtrlDown = false;
+			break;
+		}
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
